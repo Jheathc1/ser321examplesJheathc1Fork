@@ -244,7 +244,6 @@ class WebServer {
             String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
 
             JSONArray repoArray = new JSONArray(json);
-//            StringBuilder output = new StringBuilder("<html><body>");
             String out = "<html><body>";
 
             for (int i = 0; i < repoArray.length(); i++) {
@@ -254,18 +253,22 @@ class WebServer {
               String userInfo = repo.getJSONObject("owner").getString("login");
 
               out += "<p>" + "Repo: " + name + " ID: " + userID + " Owner: " + userInfo + "</p>" + "</body></html>";
-//
-//              output.append("<p>").append("Repository: ").append(name)
-//                  .append(", ID: ").append(userID)
-//                  .append(", Owner: ").append(userInfo).append("</p>");
+
             }
-
-//            output.append("</body></html>");
-
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append(out);
+          } catch (InputMismatchException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Please enter a correct input");
+          } catch (NullPointerException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide a valid API link");
           } catch (Exception e) {
             e.printStackTrace();
             builder.append("HTTP/1.1 500 Internal Server Error\n");
