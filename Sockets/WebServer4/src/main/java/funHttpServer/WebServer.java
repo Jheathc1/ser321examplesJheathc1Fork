@@ -214,16 +214,16 @@ class WebServer {
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Result is: " + result);
-          } catch (NumberFormatException e) {
-            builder.append("HTTP/1.1 400 Bad Request\n");
-            builder.append("Content-Type: text/html; charset=utf-8\n");
-            builder.append("\n");
-            builder.append("Invalid parameter. Please enter only numbers!");
           } catch (NullPointerException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Parameter missing, please provide numbers for both.");
+          } catch (NumberFormatException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid parameter. Please enter only numbers!");
           } catch (Exception e) {
             builder.append("HTTP/1.1 500 Unexpected Condition\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
