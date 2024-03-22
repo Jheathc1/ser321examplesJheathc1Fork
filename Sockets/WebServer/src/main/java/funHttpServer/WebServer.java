@@ -17,6 +17,7 @@ write a response back
 package funHttpServer;
 
 import java.io.*;
+import org.json.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -209,10 +210,27 @@ class WebServer {
           Integer result = num1 * num2;
 
           // Generate response
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("Result is: " + result);
+          if (num1 instanceof Integer && num2 instanceof Integer) {
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Result is: " + result);
+          } else if (num1 == null || num2 == null) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide numbers for both.");
+          } else if (!(num1 instanceof Integer) || !(num2 instanceof Integer))  {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid parameter. Please enter only numbers!");
+          } else {
+            builder.append("HTTP/1.1 500 Unexpected Condition\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("An unexpected error occurred, please try again.");
+          }
 
           // TODO: Include error handling here with a correct error code and
           // a response that makes sense
@@ -226,11 +244,6 @@ class WebServer {
           // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
           //     "/repos/OWNERNAME/REPONAME/contributors"
 
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          query_pairs = splitQuery(request.replace("github?", ""));
-          String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
-          System.out.println(json);
-
           builder.append("HTTP/1.1 200 OK\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
@@ -238,6 +251,37 @@ class WebServer {
           // TODO: Parse the JSON returned by your fetch and create an appropriate
           // response based on what the assignment document asks for
 
+          try {
+            Map<String, String> query_pairs = splitQuery(request.replace("github?", ""));
+            String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
+
+            JSONArray repos = new JSONArray(json);
+            StringBuilder htmlResponse = new StringBuilder("<html><body>");
+
+            for (int i = 0; i < repos.length(); i++) {
+              JSONObject repo = repos.getJSONObject(i);
+              String fullName = repo.getString("full_name");
+              int id = repo.getInt("id");
+              String login = repo.getJSONObject("owner").getString("login");
+
+              htmlResponse.append("<p>").append("Repository: ").append(fullName)
+                  .append(", ID: ").append(id)
+                  .append(", Owner: ").append(login).append("</p>");
+            }
+
+            htmlResponse.append("</body></html>");
+
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append(htmlResponse.toString());
+          } catch (Exception e) {
+            e.printStackTrace();
+            builder.append("HTTP/1.1 500 Internal Server Error\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("<html><body><p>Error processing GitHub request.</p></body></html>");
+          }
         } else {
           // if the request is not recognized at all
 
