@@ -345,6 +345,7 @@ class WebServer {
                 wordChars[j] = swap;
               }
               pageResult.append(new String(wordChars));
+              pageResult.append("\n");
             }
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/plain; charset=utf-8\n");
