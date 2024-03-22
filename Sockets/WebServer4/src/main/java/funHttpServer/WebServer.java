@@ -270,21 +270,95 @@ class WebServer {
             builder.append("\n");
             builder.append("Parameter missing, please provide a valid API link");
           } catch (JSONException e) {
-            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("HTTP/1.1 404 Not Found\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
-            builder.append("Not a valid entry, JSONArrays must start with '['");
+            builder.append("Not a valid API entry, please verify your directory path and retry.");
           } catch (StringIndexOutOfBoundsException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Please enter a parameter in the format of /repos/OWNERNAME/REPONAME");
+          } catch (Exception e) {
+            builder.append("HTTP/1.1 500 Unexpected Condition\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Unexpected error has occurred. Please try again later.");
           }
-        } else {
-          builder.append("HTTP/1.1 400 Bad Request\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("I am not sure what you want me to do...");
+        } else if (request.contains("greaterorless?")) {
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            query_pairs = splitQuery(request.replace("greaterorless?", ""));
+            int result;
+
+            Integer num1 = Integer.parseInt(query_pairs.get("num1"));
+            Integer num2 = Integer.parseInt(query_pairs.get("num2"));
+
+            if (num1 > num2) {
+              result = num1;
+            } else {
+              result = num2;
+            }
+
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("The number that is greater is : " + result);
+          } catch (NullPointerException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide numbers for both.");
+          } catch (NumberFormatException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid parameter. Please enter only numbers!");
+          } catch (NoSuchElementException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide numbers for both.");
+          } catch (Exception e) {
+            builder.append("HTTP/1.1 500 Unexpected Condition\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("No parameters were added, please include two numbers to be multipled! You can enter them with the " +
+                "format /multiply?num1=value&num2=value");
+          }
+          } else if (request.contains("wordshuffle?")) {
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            query_pairs = splitQuery(request.replace("wordshuffle?", ""));
+            String result;
+            String pageResult = null;
+
+            String word = query_pairs.get("word");
+            Integer num = Integer.parseInt(query_pairs.get("num"));
+            Random rand = new Random();
+            char[] wordChars = word.toCharArray();
+            for (int t = 0; t < num; t++) {
+              for (int i = 0; i < wordChars.length-1; i--) {
+                int j = rand.nextInt(i + 1);
+                char swap = wordChars[i];
+                wordChars[i] = wordChars[j];
+                wordChars[j] = swap;
+              }
+              result = new String(wordChars);
+              pageResult = result += "\n" + result;
+            }
+            builder.append("HTTP/1.1 200 OK\n");
+            builder.append("Content-Type: text/plain; charset=utf-8\n");
+            builder.append("\n");
+            builder.append(pageResult);
+          } catch (Exception e) {
+
+          }
+          } else {
+           builder.append("HTTP/1.1 400 Bad Request\n");
+           builder.append("Content-Type: text/html; charset=utf-8\n");
+           builder.append("\n");
+           builder.append("I am not sure what you want me to do...");
         }
 
         // Output
