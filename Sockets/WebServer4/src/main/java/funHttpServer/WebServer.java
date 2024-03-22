@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.nio.charset.Charset;
+import java.util.zip.DataFormatException;
 
 class WebServer {
   public static void main(String args[]) {
@@ -197,35 +198,33 @@ class WebServer {
         } else if (request.contains("multiply?")) {
           // This multiplies two numbers, there is NO error handling, so when
           // wrong data is given this just crashes
+          try {
+            Map<String, String> query_pairs = new LinkedHashMap<String, String>();
+            // extract path parameters
+            query_pairs = splitQuery(request.replace("multiply?", ""));
 
-          Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-          // extract path parameters
-          query_pairs = splitQuery(request.replace("multiply?", ""));
+            // extract required fields from parameters
+            Integer num1 = Integer.parseInt(query_pairs.get("num1"));
+            Integer num2 = Integer.parseInt(query_pairs.get("num2"));
 
-          // extract required fields from parameters
-          Integer num1 = Integer.parseInt(query_pairs.get("num1"));
-          Integer num2 = Integer.parseInt(query_pairs.get("num2"));
+            // do math
+            Integer result = num1 * num2;
 
-          // do math
-          Integer result = num1 * num2;
-
-          // Generate response
-          if (num1 instanceof Integer && num2 instanceof Integer) {
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Result is: " + result);
-          } else if (num1 == null || num2 == null) {
-            builder.append("HTTP/1.1 400 Bad Request\n");
-            builder.append("Content-Type: text/html; charset=utf-8\n");
-            builder.append("\n");
-            builder.append("Parameter missing, please provide numbers for both.");
-          } else if (!(num1 instanceof Integer) || !(num2 instanceof Integer))  {
+          } catch (NumberFormatException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Invalid parameter. Please enter only numbers!");
-          } else {
+          } catch (NullPointerException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide numbers for both.");
+          } catch (Exception e) {
             builder.append("HTTP/1.1 500 Unexpected Condition\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
