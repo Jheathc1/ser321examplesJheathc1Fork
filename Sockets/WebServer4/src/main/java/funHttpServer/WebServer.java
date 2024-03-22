@@ -331,7 +331,7 @@ class WebServer {
             Map<String, String> query_pairs = new LinkedHashMap<String, String>();
             query_pairs = splitQuery(request.replace("wordshuffle?", ""));
             String result;
-            String pageResult = null;
+            StringBuilder pageResult = new StringBuilder();
             Random rand = new Random();
             String word = query_pairs.get("word");
             Integer num = Integer.parseInt(query_pairs.get("num"));
@@ -344,8 +344,7 @@ class WebServer {
                 wordChars[i] = wordChars[j];
                 wordChars[j] = swap;
               }
-              result = new String(wordChars);
-              pageResult = result += "\n" + result;
+              pageResult.append(new String(wordChars));
             }
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/plain; charset=utf-8\n");
