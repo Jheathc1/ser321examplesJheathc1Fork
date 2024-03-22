@@ -214,7 +214,7 @@ class WebServer {
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Parameter missing, please provide numbers for both.");
-          } catch (NumberFormatException e) {
+          } catch (InputMismatchException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
@@ -228,7 +228,8 @@ class WebServer {
             builder.append("HTTP/1.1 500 Unexpected Condition\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
-            builder.append("An unexpected error occurred, please try again.");
+            builder.append("No parameters were added, please include two numbers to be multipled! You can enter them with the " +
+                "format /multiply?num1=value&num2=value");
           }
 
           // TODO: Include error handling here with a correct error code and
