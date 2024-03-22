@@ -19,12 +19,7 @@ package funHttpServer;
 import java.io.*;
 import org.json.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.nio.charset.Charset;
 import java.util.zip.DataFormatException;
 
@@ -224,6 +219,11 @@ class WebServer {
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Invalid parameter. Please enter only numbers!");
+          } catch (NoSuchElementException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Parameter missing, please provide numbers for both.");
           } catch (Exception e) {
             builder.append("HTTP/1.1 500 Unexpected Condition\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
