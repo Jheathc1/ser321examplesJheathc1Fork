@@ -191,18 +191,13 @@ class WebServer {
             builder.append("File not found: " + file);
           }
         } else if (request.contains("multiply?")) {
-          // This multiplies two numbers, there is NO error handling, so when
-          // wrong data is given this just crashes
           try {
             Map<String, String> query_pairs = new LinkedHashMap<String, String>();
-            // extract path parameters
             query_pairs = splitQuery(request.replace("multiply?", ""));
 
-            // extract required fields from parameters
             Integer num1 = Integer.parseInt(query_pairs.get("num1"));
             Integer num2 = Integer.parseInt(query_pairs.get("num2"));
 
-            // do math
             Integer result = num1 * num2;
 
             builder.append("HTTP/1.1 200 OK\n");
@@ -214,7 +209,7 @@ class WebServer {
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
             builder.append("Parameter missing, please provide numbers for both.");
-          } catch (InputMismatchException e) {
+          } catch (NumberFormatException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
@@ -244,37 +239,33 @@ class WebServer {
           // "Owner's repo is named RepoName. Example: find RepoName's contributors" translates to
           //     "/repos/OWNERNAME/REPONAME/contributors"
 
-          builder.append("HTTP/1.1 200 OK\n");
-          builder.append("Content-Type: text/html; charset=utf-8\n");
-          builder.append("\n");
-          builder.append("Check the todos mentioned in the Java source file");
-          // TODO: Parse the JSON returned by your fetch and create an appropriate
-          // response based on what the assignment document asks for
-
           try {
             Map<String, String> query_pairs = splitQuery(request.replace("github?", ""));
             String json = fetchURL("https://api.github.com/" + query_pairs.get("query"));
 
-            JSONArray repos = new JSONArray(json);
-            StringBuilder htmlResponse = new StringBuilder("<html><body>");
+            JSONArray repoArray = new JSONArray(json);
+//            StringBuilder output = new StringBuilder("<html><body>");
+            String out = "<html><body>";
 
-            for (int i = 0; i < repos.length(); i++) {
-              JSONObject repo = repos.getJSONObject(i);
-              String fullName = repo.getString("full_name");
-              int id = repo.getInt("id");
-              String login = repo.getJSONObject("owner").getString("login");
+            for (int i = 0; i < repoArray.length(); i++) {
+              JSONObject repo = repoArray.getJSONObject(i);
+              String name = repo.getString("full_name");
+              int userID = repo.getInt("id");
+              String userInfo = repo.getJSONObject("owner").getString("login");
 
-              htmlResponse.append("<p>").append("Repository: ").append(fullName)
-                  .append(", ID: ").append(id)
-                  .append(", Owner: ").append(login).append("</p>");
+              out += "<p>" + "Repo: " + name + " ID: " + userID + " Owner: " + userInfo + "</p>" + "</body></html>";
+//
+//              output.append("<p>").append("Repository: ").append(name)
+//                  .append(", ID: ").append(userID)
+//                  .append(", Owner: ").append(userInfo).append("</p>");
             }
 
-            htmlResponse.append("</body></html>");
+//            output.append("</body></html>");
 
             builder.append("HTTP/1.1 200 OK\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
-            builder.append(htmlResponse.toString());
+            builder.append(out);
           } catch (Exception e) {
             e.printStackTrace();
             builder.append("HTTP/1.1 500 Internal Server Error\n");
@@ -283,8 +274,6 @@ class WebServer {
             builder.append("<html><body><p>Error processing GitHub request.</p></body></html>");
           }
         } else {
-          // if the request is not recognized at all
-
           builder.append("HTTP/1.1 400 Bad Request\n");
           builder.append("Content-Type: text/html; charset=utf-8\n");
           builder.append("\n");
