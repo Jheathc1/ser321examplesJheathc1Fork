@@ -332,13 +332,13 @@ class WebServer {
             query_pairs = splitQuery(request.replace("wordshuffle?", ""));
             String result;
             String pageResult = null;
-
+            Random rand = new Random();
             String word = query_pairs.get("word");
             Integer num = Integer.parseInt(query_pairs.get("num"));
-            Random rand = new Random();
+
             char[] wordChars = word.toCharArray();
             for (int t = 0; t < num; t++) {
-              for (int i = 0; i < wordChars.length-1; i--) {
+              for (int i = wordChars.length-1; i > 0; i--) {
                 int j = rand.nextInt(i + 1);
                 char swap = wordChars[i];
                 wordChars[i] = wordChars[j];
@@ -352,7 +352,10 @@ class WebServer {
             builder.append("\n");
             builder.append(pageResult);
           } catch (Exception e) {
-
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("I am not sure what you want me to do...");
           }
           } else {
            builder.append("HTTP/1.1 400 Bad Request\n");
