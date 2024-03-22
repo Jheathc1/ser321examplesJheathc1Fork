@@ -351,11 +351,27 @@ class WebServer {
             builder.append("Content-Type: text/plain; charset=utf-8\n");
             builder.append("\n");
             builder.append(pageResult);
-          } catch (Exception e) {
+          }  catch (NullPointerException e) {
             builder.append("HTTP/1.1 400 Bad Request\n");
             builder.append("Content-Type: text/html; charset=utf-8\n");
             builder.append("\n");
-            builder.append("I am not sure what you want me to do...");
+            builder.append("Parameter missing, please provide a string and an integer.");
+          } catch (NumberFormatException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("Invalid parameter. Please enter a number for the second parameter!");
+          } catch (StringIndexOutOfBoundsException e) {
+            builder.append("HTTP/1.1 400 Bad Request\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("String size error, please try another word.");
+          } catch (Exception e) {
+            builder.append("HTTP/1.1 500 Unexpected Condition\n");
+            builder.append("Content-Type: text/html; charset=utf-8\n");
+            builder.append("\n");
+            builder.append("No parameters were added, please include a string and an integer! You can enter them with the " +
+                "format /wordshuffle?word=string&num=value");
           }
           } else {
            builder.append("HTTP/1.1 400 Bad Request\n");
